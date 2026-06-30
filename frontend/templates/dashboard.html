@@ -1,0 +1,606 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AI Study Planner{% endblock %}
+
+{% block body %}
+<div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h2>
+        <p class="mt-1 text-sm text-slate-500">Plan smarter, track execution, and hit your study goals.</p>
+    </div>
+    <a href="/schedule" class="group inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-slate-50 hover:shadow-md">
+        <svg class="h-4 w-4 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8.25 3v2.25M15.75 3v2.25M3.75 8.25h16.5M4.5 5.25h15A1.5 1.5 0 0121 6.75v12A1.5 1.5 0 0119.5 20.25h-15A1.5 1.5 0 013 18.75v-12A1.5 1.5 0 014.5 5.25z"/></svg>
+        Calendar View
+    </a>
+</div>
+
+<div id="dashboardMetrics">
+    {% include "partials/dashboard_metrics.html" %}
+</div>
+
+<div class="grid grid-cols-1 gap-6 xl:grid-cols-12">
+    <section class="space-y-6 xl:col-span-8">
+        <div class="glass-card rounded-3xl border border-white/60 bg-white/80 p-6 shadow-glass-lg backdrop-blur-xl">
+            <div class="mb-5 flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-semibold text-slate-900">Create Task</h3>
+                    <p class="text-xs text-slate-500">Add a new task to your study plan</p>
+                </div>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-600">
+                    <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-indigo-500"></span>
+                    Fast add
+                </span>
+            </div>
+            <form id="taskForm" action="/add" method="post" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6" novalidate>
+                <div class="xl:col-span-2">
+                    <label for="taskInput" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Task Name</label>
+                    <input type="text" name="task" id="taskInput" placeholder="e.g., Complete Chapter 5" required maxlength="150" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 outline-none transition-all duration-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 hover:border-slate-300">
+                    <p id="taskError" class="mt-1.5 hidden text-xs text-red-500"></p>
+                </div>
+                <div>
+                    <label for="categoryInput" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Category</label>
+                    <input type="text" name="category" id="categoryInput" placeholder="e.g., Math" required maxlength="80" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 outline-none transition-all duration-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 hover:border-slate-300">
+                    <p id="categoryError" class="mt-1.5 hidden text-xs text-red-500"></p>
+                </div>
+                <div>
+                    <label for="durationInput" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Duration (hrs)</label>
+                    <input type="number" name="duration" id="durationInput" placeholder="2" min="1" step="1" required class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 outline-none transition-all duration-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 hover:border-slate-300">
+                    <p id="durationError" class="mt-1.5 hidden text-xs text-red-500"></p>
+                </div>
+                <div>
+                    <label for="dueDateInput" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Due Date</label>
+                    <input type="date" name="due_date" id="dueDateInput" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-800 outline-none transition-all duration-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 hover:border-slate-300">
+                </div>
+                <div>
+                    <label for="statusInput" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Status</label>
+                    <select name="status" id="statusInput" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-800 outline-none transition-all duration-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 hover:border-slate-300">
+                        <option value="todo">To Do</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="xl:col-span-6">
+                    <button id="addTaskButton" type="submit" class="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-indigo-200 transition-all duration-300 hover:from-indigo-600 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-300 hover:-translate-y-0.5 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-auto">
+                        <span id="addTaskButtonText" class="flex items-center justify-center gap-2">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/>
+                            </svg>
+                            Add Task
+                        </span>
+                        <span id="addTaskButtonLoading" class="hidden items-center justify-center gap-2">
+                            <svg class="h-5 w-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Adding...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="dashboardFilters">
+            {% include "partials/dashboard_filters.html" %}
+        </div>
+
+        <div id="taskListSection">
+            {% include "partials/dashboard_task_list.html" %}
+        </div>
+    </section>
+
+    <aside id="dashboardSidebar" class="space-y-6 xl:col-span-4">
+        {% include "partials/dashboard_sidebar.html" %}
+    </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (function() {
+        const dashboardConfig = {
+            fragmentsUrl: {{ url_for("tasks.dashboard_fragments")|tojson }},
+            createTaskUrl: {{ url_for("tasks.add_task_api")|tojson }}
+        };
+        let studyChart = null;
+
+        function getTaskForm() {
+            return document.getElementById("taskForm");
+        }
+
+        function getTaskFormFields() {
+            return {
+                taskForm: getTaskForm(),
+                taskInput: document.getElementById("taskInput"),
+                categoryInput: document.getElementById("categoryInput"),
+                durationInput: document.getElementById("durationInput"),
+                addTaskButton: document.getElementById("addTaskButton"),
+                addTaskButtonText: document.getElementById("addTaskButtonText"),
+                addTaskButtonLoading: document.getElementById("addTaskButtonLoading")
+            };
+        }
+
+        function getFilterForm() {
+            return document.getElementById("filterForm");
+        }
+
+        function getRequestHeaders(extraHeaders = {}) {
+            return Object.assign(
+                {
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                extraHeaders
+            );
+        }
+
+        function showFieldError(input, errorEl, message) {
+            if (message) {
+                input.classList.add("border-red-400", "focus:border-red-500", "focus:ring-red-100");
+                input.classList.remove("border-slate-200", "focus:border-indigo-400", "focus:ring-indigo-100");
+                errorEl.textContent = message;
+                errorEl.classList.remove("hidden");
+                errorEl.classList.add("animate-slide-up");
+                return false;
+            }
+
+            input.classList.remove("border-red-400", "focus:border-red-500", "focus:ring-red-100");
+            input.classList.add("border-slate-200", "focus:border-indigo-400", "focus:ring-indigo-100");
+            errorEl.textContent = "";
+            errorEl.classList.add("hidden");
+            return true;
+        }
+
+        function validateTask() {
+            const { taskInput } = getTaskFormFields();
+            const value = taskInput?.value.trim() || "";
+            return showFieldError(taskInput, document.getElementById("taskError"), value ? "" : "Task name is required");
+        }
+
+        function validateCategory() {
+            const { categoryInput } = getTaskFormFields();
+            const value = categoryInput?.value.trim() || "";
+            return showFieldError(categoryInput, document.getElementById("categoryError"), value ? "" : "Category is required");
+        }
+
+        function validateDuration() {
+            const { durationInput } = getTaskFormFields();
+            const durationValue = Number(durationInput?.value);
+            const invalidDuration = !Number.isInteger(durationValue) || durationValue < 1;
+            return showFieldError(durationInput, document.getElementById("durationError"), invalidDuration ? "Duration must be at least 1 hour" : "");
+        }
+
+        function clearTaskFormErrors() {
+            ["taskError", "categoryError", "durationError"].forEach((id) => {
+                const errorEl = document.getElementById(id);
+                if (!errorEl) {
+                    return;
+                }
+
+                errorEl.textContent = "";
+                errorEl.classList.add("hidden");
+            });
+        }
+
+        function setTaskFormLoading(isLoading) {
+            const {
+                addTaskButton,
+                addTaskButtonText,
+                addTaskButtonLoading
+            } = getTaskFormFields();
+
+            if (!addTaskButton || !addTaskButtonText || !addTaskButtonLoading) {
+                return;
+            }
+
+            addTaskButton.disabled = isLoading;
+            addTaskButtonText.classList.toggle("hidden", isLoading);
+            addTaskButtonLoading.classList.toggle("hidden", !isLoading);
+            addTaskButtonLoading.classList.toggle("flex", isLoading);
+        }
+
+        function createToastElement(message, category) {
+            const toast = document.createElement("div");
+            toast.className = `toast animate-slide-up glass-card rounded-2xl border px-4 py-3 text-sm font-medium shadow-glass ${
+                category === "error"
+                    ? "border-red-200 bg-red-50/90 text-red-700"
+                    : "border-emerald-200 bg-emerald-50/90 text-emerald-700"
+            }`;
+
+            const row = document.createElement("div");
+            row.className = "flex items-start gap-3";
+
+            const text = document.createElement("span");
+            text.className = "flex-1";
+            text.textContent = message;
+
+            row.appendChild(text);
+            toast.appendChild(row);
+            return toast;
+        }
+
+        function showToast(message, category = "success") {
+            if (!message) {
+                return;
+            }
+
+            let container = document.getElementById("toastContainer");
+            if (!container) {
+                container = document.createElement("div");
+                container.id = "toastContainer";
+                container.className = "fixed right-4 top-20 z-50 w-[calc(100%-2rem)] max-w-sm space-y-3";
+                document.body.appendChild(container);
+            }
+
+            const toast = createToastElement(message, category);
+            container.appendChild(toast);
+
+            window.setTimeout(() => {
+                toast.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+                toast.style.opacity = "0";
+                toast.style.transform = "translateY(-10px)";
+                window.setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function getStatusPresentation(status) {
+            if (status === "done") {
+                return {
+                    label: "Done",
+                    progressWidth: "100%",
+                    accentClass: "bg-gradient-to-b from-emerald-400 to-emerald-600",
+                    progressClass: "bg-gradient-to-r from-emerald-400 to-emerald-600"
+                };
+            }
+
+            if (status === "in-progress") {
+                return {
+                    label: "In Progress",
+                    progressWidth: "60%",
+                    accentClass: "bg-gradient-to-b from-amber-400 to-amber-600",
+                    progressClass: "bg-gradient-to-r from-amber-400 to-amber-600"
+                };
+            }
+
+            return {
+                label: "Todo",
+                progressWidth: "20%",
+                accentClass: "bg-gradient-to-b from-slate-300 to-slate-400",
+                progressClass: "bg-gradient-to-r from-slate-400 to-slate-600"
+            };
+        }
+
+        function applyTaskStatusUI(taskId, newStatus) {
+            const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+            if (!taskCard) {
+                return;
+            }
+
+            const statusLabel = taskCard.querySelector(".task-status-label");
+            const statusAccent = taskCard.querySelector(".task-status-accent");
+            const statusProgress = taskCard.querySelector(".task-status-progress");
+            const presentation = getStatusPresentation(newStatus);
+
+            taskCard.dataset.taskStatus = newStatus;
+
+            if (statusLabel) {
+                statusLabel.textContent = presentation.label;
+            }
+
+            if (statusAccent) {
+                statusAccent.className = `task-status-accent absolute left-0 top-0 h-full w-1 ${presentation.accentClass}`;
+            }
+
+            if (statusProgress) {
+                statusProgress.className = `task-status-progress h-full rounded-full ${presentation.progressClass}`;
+                statusProgress.style.width = presentation.progressWidth;
+            }
+        }
+
+        function captureFormValues(form) {
+            if (!form) {
+                return null;
+            }
+
+            return Array.from(form.elements)
+                .filter((field) => field.name)
+                .map((field) => ({ name: field.name, value: field.value }));
+        }
+
+        function restoreFormValues(form, snapshot) {
+            if (!form || !snapshot) {
+                return;
+            }
+
+            snapshot.forEach((fieldSnapshot) => {
+                const field = form.elements.namedItem(fieldSnapshot.name);
+                if (!field) {
+                    return;
+                }
+
+                if (field instanceof RadioNodeList) {
+                    Array.from(field).forEach((radio) => {
+                        radio.checked = radio.value === fieldSnapshot.value;
+                    });
+                    return;
+                }
+
+                field.value = fieldSnapshot.value;
+            });
+        }
+
+        async function refreshDashboardFragments(options = {}) {
+            const filterSnapshot = captureFormValues(getFilterForm());
+            const response = await fetch(`${dashboardConfig.fragmentsUrl}${window.location.search || ""}`, {
+                headers: getRequestHeaders()
+            });
+
+            if (!response.ok) {
+                throw new Error("Unable to refresh dashboard data.");
+            }
+
+            const payload = await response.json();
+
+            const metrics = document.getElementById("dashboardMetrics");
+            const filters = document.getElementById("dashboardFilters");
+            const taskList = document.getElementById("taskListSection");
+            const sidebar = document.getElementById("dashboardSidebar");
+
+            if (metrics) {
+                metrics.innerHTML = payload.metricsHtml;
+            }
+
+            if (filters) {
+                filters.innerHTML = payload.filtersHtml;
+            }
+
+            if (taskList) {
+                taskList.innerHTML = payload.taskListHtml;
+            }
+
+            if (sidebar) {
+                sidebar.innerHTML = payload.sidebarHtml;
+            }
+
+            restoreFormValues(getFilterForm(), filterSnapshot);
+            bindInteractiveHandlers();
+            initChart();
+
+            if (options.toastMessage) {
+                showToast(options.toastMessage, options.toastCategory || "success");
+            }
+        }
+
+        function bindTaskForm() {
+            const {
+                taskForm,
+                taskInput,
+                categoryInput,
+                durationInput
+            } = getTaskFormFields();
+
+            if (!taskForm || taskForm.dataset.realtimeBound === "1") {
+                return;
+            }
+
+            taskForm.dataset.realtimeBound = "1";
+
+            taskInput?.addEventListener("input", validateTask);
+            categoryInput?.addEventListener("input", validateCategory);
+            durationInput?.addEventListener("input", validateDuration);
+
+            taskForm.addEventListener("submit", async function(event) {
+                event.preventDefault();
+
+                if (taskForm.dataset.pending === "1") {
+                    return;
+                }
+
+                const valid = validateTask() && validateCategory() && validateDuration();
+                if (!valid) {
+                    return;
+                }
+
+                taskForm.dataset.pending = "1";
+                setTaskFormLoading(true);
+
+                const formData = new FormData(taskForm);
+                const requestBody = {
+                    task: formData.get("task"),
+                    category: formData.get("category"),
+                    duration: formData.get("duration"),
+                    due_date: formData.get("due_date"),
+                    status: formData.get("status")
+                };
+
+                try {
+                    const response = await fetch(dashboardConfig.createTaskUrl, {
+                        method: "POST",
+                        headers: getRequestHeaders({
+                            "Content-Type": "application/json"
+                        }),
+                        body: JSON.stringify(requestBody)
+                    });
+                    const payload = await response.json();
+
+                    if (!response.ok || !payload.success) {
+                        throw new Error(payload.message || "Unable to add task right now.");
+                    }
+
+                    taskForm.reset();
+                    clearTaskFormErrors();
+                    await refreshDashboardFragments();
+                    showToast(payload.message || "Task added");
+                } catch (error) {
+                    showToast(error.message || "Unable to add task right now. Please try again.", "error");
+                } finally {
+                    taskForm.dataset.pending = "0";
+                    setTaskFormLoading(false);
+                }
+            });
+        }
+
+        function bindDeleteForms() {
+            document.querySelectorAll(".task-delete-form").forEach((form) => {
+                if (form.dataset.realtimeBound === "1") {
+                    return;
+                }
+
+                form.dataset.realtimeBound = "1";
+                form.addEventListener("submit", async function(event) {
+                    event.preventDefault();
+
+                    const button = this.querySelector(".delete-task-btn");
+                    const taskId = button?.dataset.taskId || this.dataset.taskId;
+                    const taskName = button?.dataset.taskName || "this task";
+
+                    if (!taskId || !button) {
+                        showToast("Unable to delete task right now. Please refresh and try again.", "error");
+                        return;
+                    }
+
+                    if (!window.confirm(`Delete "${taskName}"?`)) {
+                        return;
+                    }
+
+                    if (button.dataset.pending === "1") {
+                        return;
+                    }
+
+                    button.dataset.pending = "1";
+                    button.dataset.originalHtml = button.innerHTML;
+                    button.disabled = true;
+                    button.innerHTML = `
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Deleting...
+                        </span>
+                    `;
+
+                    try {
+                        const response = await fetch(`/api/tasks/${taskId}`, {
+                            method: "DELETE",
+                            headers: getRequestHeaders()
+                        });
+                        const payload = await response.json();
+
+                        if (!response.ok || !payload.success) {
+                            throw new Error(payload.message || "Delete failed");
+                        }
+
+                        await refreshDashboardFragments();
+                        showToast(payload.message || "Task deleted successfully");
+                    } catch (error) {
+                        button.disabled = false;
+                        button.dataset.pending = "0";
+                        button.innerHTML = button.dataset.originalHtml || "Delete";
+                        showToast(error.message || "Unable to delete task right now. Please try again.", "error");
+                    }
+                });
+            });
+        }
+
+        function bindStatusSelects() {
+            document.querySelectorAll(".task-status-select").forEach((select) => {
+                if (select.dataset.realtimeBound === "1") {
+                    return;
+                }
+
+                select.dataset.realtimeBound = "1";
+                select.addEventListener("change", async function() {
+                    const taskId = this.dataset.taskId;
+                    const nextStatus = this.value;
+                    const previousStatus = this.dataset.initialValue;
+
+                    if (this.dataset.pending === "1" || nextStatus === previousStatus) {
+                        return;
+                    }
+
+                    this.dataset.pending = "1";
+                    this.disabled = true;
+                    applyTaskStatusUI(taskId, nextStatus);
+
+                    try {
+                        const response = await fetch(`/api/tasks/${taskId}/status`, {
+                            method: "PUT",
+                            headers: getRequestHeaders({
+                                "Content-Type": "application/json"
+                            }),
+                            body: JSON.stringify({ status: nextStatus })
+                        });
+                        const payload = await response.json();
+
+                        if (!response.ok || !payload.success) {
+                            throw new Error(payload.message || "Status update failed");
+                        }
+
+                        this.dataset.initialValue = nextStatus;
+                        await refreshDashboardFragments();
+                        showToast(payload.message || "Status updated successfully");
+                    } catch (error) {
+                        this.value = previousStatus;
+                        applyTaskStatusUI(taskId, previousStatus);
+                        showToast(error.message || "Unable to update task status right now. Please try again.", "error");
+                    } finally {
+                        this.dataset.pending = "0";
+                        this.disabled = false;
+                    }
+                });
+            });
+        }
+
+        function bindInteractiveHandlers() {
+            bindTaskForm();
+            bindDeleteForms();
+            bindStatusSelects();
+        }
+
+        function initChart() {
+            if (studyChart) {
+                studyChart.destroy();
+                studyChart = null;
+            }
+
+            const chartHost = document.getElementById("studyChartHost");
+            const chartCanvas = document.getElementById("studyChart");
+            if (!chartHost || !chartCanvas || !window.Chart) {
+                return;
+            }
+
+            const labels = JSON.parse(chartHost.dataset.chartLabels || "[]");
+            const values = JSON.parse(chartHost.dataset.chartValues || "[]");
+            const textColor = "#64748b";
+            const gridColor = "#e2e8f0";
+
+            studyChart = new Chart(chartCanvas, {
+                type: "bar",
+                data: {
+                    labels,
+                    datasets: [{
+                        label: "Study Hours",
+                        data: values,
+                        backgroundColor: "rgba(99, 102, 241, 0.85)",
+                        borderRadius: 10,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: gridColor } },
+                        x: { ticks: { color: textColor }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        bindInteractiveHandlers();
+        initChart();
+    })();
+</script>
+{% endblock %}

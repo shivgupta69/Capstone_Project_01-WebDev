@@ -1,0 +1,50 @@
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 -translate-x-full border-r border-white/40 bg-white/90 shadow-glass transition-transform duration-300 lg:translate-x-0 glass backdrop-blur-xl">
+    <div class="flex h-16 items-center justify-between border-b border-white/40 px-6">
+        <a href="/" class="flex items-center gap-3">
+            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v11.494m-5.747-8.62h11.494M4.5 19.5h15a1.5 1.5 0 001.5-1.5v-12A1.5 1.5 0 0019.5 4.5h-15A1.5 1.5 0 003 6v12a1.5 1.5 0 001.5 1.5z" />
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-slate-900">AI Study Planner</p>
+                <p class="text-xs text-slate-500">Learning OS</p>
+            </div>
+        </a>
+        <button id="closeSidebar" class="rounded-xl p-2 text-slate-500 transition-all duration-200 hover:bg-slate-100/80 hover:text-slate-700 lg:hidden" aria-label="Close sidebar">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+    </div>
+
+    <nav class="space-y-1 px-3 py-5">
+        <a href="/" class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 {% if request.path == '/' %}bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 shadow-sm{% else %}text-slate-600 hover:bg-slate-50/80 hover:text-slate-900{% endif %}">
+            <svg class="h-5 w-5 {% if request.path == '/' %}text-indigo-500{% else %}text-slate-400 group-hover:text-slate-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l9-9 9 9M4.5 10.5V19.5h15v-9"/>
+            </svg>
+            Dashboard
+        </a>
+        <a href="/schedule" class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 {% if request.path == '/schedule' %}bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 shadow-sm{% else %}text-slate-600 hover:bg-slate-50/80 hover:text-slate-900{% endif %}">
+            <svg class="h-5 w-5 {% if request.path == '/schedule' %}text-indigo-500{% else %}text-slate-400 group-hover:text-slate-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8.25 3v2.25M15.75 3v2.25M3.75 8.25h16.5M4.5 5.25h15A1.5 1.5 0 0121 6.75v12A1.5 1.5 0 0119.5 20.25h-15A1.5 1.5 0 013 18.75v-12A1.5 1.5 0 014.5 5.25z"/>
+            </svg>
+            Calendar
+        </a>
+        <a href="/analytics" class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 {% if request.path == '/analytics' %}bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 shadow-sm{% else %}text-slate-600 hover:bg-slate-50/80 hover:text-slate-900{% endif %}">
+            <svg class="h-5 w-5 {% if request.path == '/analytics' %}text-indigo-500{% else %}text-slate-400 group-hover:text-slate-600{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7.5 7.5v9m4.5-6v6m4.5-12v12"/>
+            </svg>
+            Analytics
+        </a>
+        <a href="#" class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-50/80 hover:text-slate-900">
+            <svg class="h-5 w-5 text-slate-400 group-hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 6.75a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.25a8.25 8.25 0 0114.998 0"/>
+            </svg>
+            Profile
+        </a>
+    </nav>
+
+    <div class="absolute inset-x-3 bottom-3 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-purple-50 p-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.15em] text-indigo-400">Signed in as</p>
+        <p class="mt-1.5 text-sm font-bold text-slate-900" data-user-username>{{ current_user.username if current_user else "Guest" }}</p>
+    </div>
+</aside>

@@ -1,0 +1,149 @@
+{% macro card(variant="glass", hover=true, clickable=false, href=null, padding="md", class="", attrs="") %}
+{% set base_classes = "rounded-3xl transition-all duration-300" %}
+
+{% if variant == "glass" %}
+    {% set variant_classes = "glass-card border border-white/60 bg-white/80 shadow-glass backdrop-blur-xl" %}
+    {% if hover %}
+        {% set variant_classes = variant_classes + " hover:shadow-glass-lg hover:-translate-y-1" %}
+    {% endif %}
+{% elif variant == "gradient" %}
+    {% set variant_classes = "bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 shadow-glass" %}
+    {% if hover %}
+        {% set variant_classes = variant_classes + " hover:shadow-glass-lg hover:-translate-y-1" %}
+    {% endif %}
+{% elif variant == "bordered" %}
+    {% set variant_classes = "border-2 border-slate-200 bg-white shadow-sm" %}
+    {% if hover %}
+        {% set variant_classes = variant_classes + " hover:border-indigo-200 hover:shadow-md" %}
+    {% endif %}
+{% elif variant == "minimal" %}
+    {% set variant_classes = "bg-white/60 border border-white/40" %}
+{% else %}
+    {% set variant_classes = "glass-card border border-white/60 bg-white/80 shadow-glass backdrop-blur-xl" %}
+    {% if hover %}
+        {% set variant_classes = variant_classes + " hover:shadow-glass-lg hover:-translate-y-1" %}
+    {% endif %}
+{% endif %}
+
+{# Padding styles #}
+{% if padding == "none" %}
+    {% set padding_classes = "" %}
+{% elif padding == "sm" %}
+    {% set padding_classes = "p-4" %}
+{% elif padding == "lg" %}
+    {% set padding_classes = "p-8" %}
+{% else %}
+    {% set padding_classes = "p-6" %}
+{% endif %}
+
+{% set classes = base_classes + " " + variant_classes + " " + padding_classes + " " + class %}
+
+{% if clickable and href %}
+    <a href="{{ href }}" class="group block {{ classes }}" {{ attrs | safe }}>
+        {{ caller() if caller is defined else "" }}
+    </a>
+{% else %}
+    <div class="{{ classes }}" {{ attrs | safe }}>
+        {{ caller() if caller is defined else "" }}
+    </div>
+{% endif %}
+{% endmacro %}
+
+
+{# Card Header #}
+{% macro card_header(class="") %}
+<div class="mb-4 flex items-center justify-between {{ class }}">
+    {{ caller() if caller else "" }}
+</div>
+{% endmacro %}
+
+
+{# Card Body #}
+{% macro card_body(class="") %}
+<div class="{{ class }}">
+    {{ caller() if caller else "" }}
+</div>
+{% endmacro %}
+
+
+{# Card Footer #}
+{% macro card_footer(class="") %}
+<div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 {{ class }}">
+    {{ caller() if caller else "" }}
+</div>
+{% endmacro %}
+
+
+{# Metric Card - For displaying statistics #}
+{% macro metric_card(title, value, icon=null, variant="default", trend=null, subtitle=null, class="") %}
+{% set base_classes = "glass-card rounded-3xl border bg-white/80 p-5 shadow-glass backdrop-blur-xl transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1" %}
+
+{% if variant == "success" %}
+    {% set border_class = "border-emerald-200/60" %}
+    {% set bg_class = "bg-gradient-to-br from-emerald-50/80 to-white/80" %}
+    {% set icon_bg = "from-emerald-400 to-emerald-600" %}
+    {% set text_class = "text-emerald-700" %}
+{% elif variant == "warning" %}
+    {% set border_class = "border-amber-200/60" %}
+    {% set bg_class = "bg-gradient-to-br from-amber-50/80 to-white/80" %}
+    {% set icon_bg = "from-amber-400 to-amber-600" %}
+    {% set text_class = "text-amber-700" %}
+{% elif variant == "primary" %}
+    {% set border_class = "border-indigo-200/60" %}
+    {% set bg_class = "bg-gradient-to-br from-indigo-50/80 to-white/80" %}
+    {% set icon_bg = "from-indigo-400 to-indigo-600" %}
+    {% set text_class = "text-indigo-700" %}
+{% else %}
+    {% set border_class = "border-white/60" %}
+    {% set bg_class = "bg-white/80" %}
+    {% set icon_bg = "from-slate-400 to-slate-600" %}
+    {% set text_class = "text-slate-700" %}
+{% endif %}
+
+<div class="{{ base_classes }} {{ border_class }} {{ bg_class }} {{ class }}">
+    <div class="flex items-center gap-4">
+        {% if icon %}
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br {{ icon_bg }} text-white shadow-lg">
+                {{ icon | safe }}
+            </div>
+        {% endif %}
+        <div class="flex-1">
+            <p class="text-xs font-semibold uppercase tracking-wide {{ text_class }}">{{ title }}</p>
+            <p class="text-2xl font-bold text-slate-900">{{ value }}</p>
+            {% if subtitle %}
+                <p class="mt-1 text-xs {{ text_class }}">{{ subtitle }}</p>
+            {% endif %}
+        </div>
+        {% if trend %}
+            <div class="{% if trend > 0 %}text-emerald-500{% else %}text-red-500{% endif %}">
+                {% if trend > 0 %}
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                {% else %}
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
+                    </svg>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+
+{# Empty State Card #}
+{% macro empty_state(icon, title, description, action_label=null, action_href=null, class="") %}
+<div class="glass-card flex flex-col items-center justify-center rounded-[2rem] border border-dashed border-slate-300 bg-white/80 p-10 text-center shadow-glass backdrop-blur-xl {{ class }}">
+    <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200">
+        {{ icon | safe }}
+    </div>
+    <h3 class="text-base font-semibold text-slate-900">{{ title }}</h3>
+    <p class="mt-1 text-sm text-slate-500">{{ description }}</p>
+    {% if action_label and action_href %}
+        <a href="{{ action_href }}" class="mt-4 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-indigo-600 hover:to-purple-700 hover:shadow-lg hover:-translate-y-0.5">
+            {{ action_label }}
+        </a>
+    {% endif %}
+</div>
+{% endmacro %}

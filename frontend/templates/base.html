@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Study Planner{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+                    },
+                    colors: {
+                        primary: {
+                            50: "#eef2ff",
+                            100: "#e0e7ff",
+                            400: "#818cf8",
+                            500: "#6366f1",
+                            600: "#4f46e5",
+                            700: "#4338ca",
+                        },
+                    },
+                    boxShadow: {
+                        panel: "0 20px 60px -24px rgba(79, 70, 229, 0.3)",
+                        glass: "0 8px 32px rgba(79, 70, 229, 0.12)",
+                        "glass-lg": "0 12px 48px rgba(79, 70, 229, 0.18)",
+                    },
+                    animation: {
+                        "spin-slow": "spin 1.5s linear infinite",
+                        "fade-in": "fadeIn 0.3s ease-out",
+                        "slide-up": "slideUp 0.4s ease-out",
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            "0%": { opacity: "0" },
+                            "100%": { opacity: "1" },
+                        },
+                        slideUp: {
+                            "0%": { opacity: "0", transform: "translateY(10px)" },
+                            "100%": { opacity: "1", transform: "translateY(0)" },
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+
+    <style>
+        body {
+            font-family: "Inter", system-ui, -apple-system, sans-serif;
+            background:
+                radial-gradient(circle at 20% 10%, rgba(99, 102, 241, 0.15), transparent 40%),
+                radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.12), transparent 40%),
+                linear-gradient(180deg, #fafbfe 0%, #f0f4ff 100%);
+            background-attachment: fixed;
+        }
+
+        .app-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .app-scrollbar::-webkit-scrollbar-track {
+            background: rgba(241, 245, 249, 0.5);
+            border-radius: 9999px;
+        }
+
+        .app-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #c7d2fe, #a5b4fc);
+            border-radius: 9999px;
+        }
+
+        .app-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #a5b4fc, #818cf8);
+        }
+
+        /* Glassmorphism utilities */
+        .glass {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .glass-card {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Smooth focus rings */
+        .focus-ring {
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-50 text-slate-900 app-scrollbar">
+    {% if session.user_id %}
+    <div class="min-h-screen">
+        <div id="sidebarBackdrop" class="fixed inset-0 z-30 hidden bg-slate-900/30 backdrop-blur-sm lg:hidden"></div>
+
+        {% include "components/sidebar.html" %}
+
+        <div class="lg:pl-72">
+            {% include "components/navbar.html" %}
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div id="toastContainer" class="fixed right-4 top-20 z-50 w-[calc(100%-2rem)] max-w-sm space-y-3">
+                {% for category, message in messages %}
+                <div class="toast animate-slide-up glass-card rounded-2xl border px-4 py-3 text-sm font-medium shadow-glass {% if category == 'error' %}border-red-200 bg-red-50/90 text-red-700{% else %}border-emerald-200 bg-emerald-50/90 text-emerald-700{% endif %}">
+                    <div class="flex items-start gap-3">
+                        {% if category == 'error' %}
+                        <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {% else %}
+                        <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {% endif %}
+                        <span class="flex-1">{{ message }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <main class="px-4 py-6 sm:px-6 lg:px-8">
+                {% block body %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    {% else %}
+    <div class="min-h-screen bg-transparent">
+        {% include "components/navbar.html" %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="mx-auto mt-4 w-full max-w-xl px-4">
+            {% for category, message in messages %}
+            <div class="animate-slide-up glass-card mb-3 rounded-2xl border px-4 py-3 text-sm shadow-glass {% if category == 'error' %}border-red-200 bg-red-50/90 text-red-700{% else %}border-emerald-200 bg-emerald-50/90 text-emerald-700{% endif %}">
+                <div class="flex items-center gap-2">
+                    {% if category == 'error' %}
+                    <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {% else %}
+                    <svg class="h-5 w-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {% endif %}
+                    <span>{{ message }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+            {% block public_body %}
+                {{ self.body() }}
+            {% endblock %}
+        </main>
+    </div>
+    {% endif %}
+
+    <script>
+        window.appAuth = {
+            isAuthenticated: {{ "true" if session.get("user_id") else "false" }},
+            user: {{ (current_user or none)|tojson }},
+            token: {{ session.get("auth_token")|tojson }}
+        };
+
+        (function () {
+            const sidebar = document.getElementById("sidebar");
+            const backdrop = document.getElementById("sidebarBackdrop");
+            const open = document.getElementById("openSidebar");
+            const close = document.getElementById("closeSidebar");
+
+            function openMenu() {
+                sidebar?.classList.remove("-translate-x-full");
+                backdrop?.classList.remove("hidden");
+            }
+
+            function closeMenu() {
+                sidebar?.classList.add("-translate-x-full");
+                backdrop?.classList.add("hidden");
+            }
+
+            open?.addEventListener("click", openMenu);
+            close?.addEventListener("click", closeMenu);
+            backdrop?.addEventListener("click", closeMenu);
+        })();
+
+        (function () {
+            document.querySelectorAll(".toast").forEach((toast) => {
+                setTimeout(() => {
+                    toast.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+                    toast.style.opacity = "0";
+                    toast.style.transform = "translateY(-10px)";
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            });
+        })();
+
+        (function () {
+            function parseStoredUser() {
+                try {
+                    return JSON.parse(localStorage.getItem("user"));
+                } catch (error) {
+                    localStorage.removeItem("user");
+                    return null;
+                }
+            }
+
+            function syncAuthStorage() {
+                if (!window.appAuth.isAuthenticated) {
+                    localStorage.removeItem("user");
+                    localStorage.removeItem("token");
+                    return null;
+                }
+
+                const storedUser = parseStoredUser();
+                const activeUser = window.appAuth.user || storedUser;
+                if (activeUser) {
+                    localStorage.setItem("user", JSON.stringify(activeUser));
+                }
+                if (window.appAuth.token) {
+                    localStorage.setItem("token", window.appAuth.token);
+                }
+                return activeUser;
+            }
+
+            function applyUsername(user) {
+                document.querySelectorAll("[data-user-username]").forEach((node) => {
+                    node.textContent = user?.username || "Guest";
+                });
+            }
+
+            const user = syncAuthStorage();
+            applyUsername(user);
+        })();
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

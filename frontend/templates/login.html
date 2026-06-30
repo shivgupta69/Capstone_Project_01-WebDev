@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% from "macros/button.html" import button %}
+{% from "macros/card.html" import card %}
+{% from "macros/input.html" import input %}
+
+{% block title %}Login - AI Study Planner{% endblock %}
+
+{% block body %}
+<div class="flex min-h-[calc(100vh-240px)] items-center justify-center px-4 py-12">
+    <div class="w-full max-w-lg">
+        {% call card(class="rounded-[2.5rem] p-8 shadow-glass-lg sm:p-10", hover=false) %}
+            <div class="mb-8 text-center">
+                <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 text-2xl text-white shadow-xl shadow-indigo-200">
+                    <span>📚</span>
+                </div>
+                <h2 class="text-3xl font-semibold tracking-tight text-slate-900">Welcome back</h2>
+                <p class="mt-2 text-sm text-slate-500">Sign in to manage your study plan in one focused workspace.</p>
+            </div>
+
+            <form id="loginForm" method="post" class="space-y-5" novalidate>
+                <div>
+                    {{ input(
+                        name="username",
+                        id="username",
+                        label="Username",
+                        placeholder="Enter your username",
+                        required=true,
+                        autocomplete="username",
+                        minlength=3,
+                        icon='<svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>',
+                        input_class="duration-300"
+                    ) }}
+                    <p id="usernameError" class="hidden text-xs text-red-500"></p>
+                </div>
+
+                <div>
+                    {{ input(
+                        name="password",
+                        id="password",
+                        type="password",
+                        label="Password",
+                        placeholder="Enter your password",
+                        required=true,
+                        autocomplete="current-password",
+                        minlength=8,
+                        icon='<svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>',
+                        input_class="duration-300"
+                    ) }}
+                    <p id="passwordError" class="hidden text-xs text-red-500"></p>
+                </div>
+
+                <div class="relative">
+                    {% call button(id="loginButton", type="submit", class="group relative w-full overflow-hidden") %}
+                    <span id="loginButtonText" class="flex items-center justify-center gap-2">
+                        Sign in
+                        <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </span>
+                    <span id="loginButtonLoading" class="hidden items-center justify-center gap-2">
+                        <svg class="h-5 w-5 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Signing in...
+                    </span>
+                    {% endcall %}
+                </div>
+
+                <p id="authError" class="hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"></p>
+            </form>
+
+            <div class="relative my-7">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-slate-200/80"></div>
+                </div>
+                <div class="relative flex justify-center text-xs">
+                    <span class="bg-gradient-to-r from-transparent via-white/90 to-transparent px-4 uppercase tracking-[0.2em] text-slate-400">or</span>
+                </div>
+            </div>
+
+            <p class="text-center text-sm text-slate-500">
+                New to AI Study Planner?
+                <a href="/register" class="font-semibold text-indigo-600 transition hover:text-indigo-700">Create an account</a>
+            </p>
+        {% endcall %}
+
+        <div class="mt-6 text-center">
+            <p class="text-xs text-slate-400">🔒 Secure login for your study data</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function() {
+        const loginForm = document.getElementById("loginForm");
+        const loginButton = document.getElementById("loginButton");
+        const loginButtonText = document.getElementById("loginButtonText");
+        const loginButtonLoading = document.getElementById("loginButtonLoading");
+        const usernameInput = document.getElementById("username");
+        const passwordInput = document.getElementById("password");
+        const usernameError = document.getElementById("usernameError");
+        const passwordError = document.getElementById("passwordError");
+        const authError = document.getElementById("authError");
+
+        function showFieldError(input, errorEl, message) {
+            if (message) {
+                input.classList.add("border-red-400", "focus:border-red-500", "focus:ring-red-100");
+                input.classList.remove("border-slate-200", "focus:border-indigo-400", "focus:ring-indigo-100");
+                errorEl.textContent = message;
+                errorEl.classList.remove("hidden");
+                errorEl.classList.add("animate-slide-up");
+                return false;
+            }
+            input.classList.remove("border-red-400", "focus:border-red-500", "focus:ring-red-100");
+            input.classList.add("border-slate-200", "focus:border-indigo-400", "focus:ring-indigo-100");
+            errorEl.textContent = "";
+            errorEl.classList.add("hidden");
+            return true;
+        }
+
+        function validateUsername() {
+            const value = usernameInput.value.trim();
+            if (!value) return showFieldError(usernameInput, usernameError, "Username is required");
+            if (value.length < 3) return showFieldError(usernameInput, usernameError, "Username must be at least 3 characters");
+            return showFieldError(usernameInput, usernameError, "");
+        }
+
+        function validatePassword() {
+            const value = passwordInput.value;
+            if (!value) return showFieldError(passwordInput, passwordError, "Password is required");
+            if (value.length < 8) return showFieldError(passwordInput, passwordError, "Password must be at least 8 characters");
+            return showFieldError(passwordInput, passwordError, "");
+        }
+
+        function setSubmitting(isSubmitting) {
+            loginButton.disabled = isSubmitting;
+            loginButtonText.classList.toggle("hidden", isSubmitting);
+            loginButtonLoading.classList.toggle("hidden", !isSubmitting);
+            loginButtonLoading.classList.toggle("flex", isSubmitting);
+        }
+
+        function showAuthError(message) {
+            authError.textContent = message;
+            authError.classList.remove("hidden");
+        }
+
+        // Real-time validation
+        usernameInput?.addEventListener("input", validateUsername);
+        passwordInput?.addEventListener("input", validatePassword);
+
+        // Clear errors on focus
+        usernameInput?.addEventListener("focus", () => {
+            usernameError.classList.add("hidden");
+            usernameInput.classList.remove("border-red-400");
+        });
+        passwordInput?.addEventListener("focus", () => {
+            passwordError.classList.add("hidden");
+            passwordInput.classList.remove("border-red-400");
+        });
+
+        loginForm?.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const validUsername = validateUsername();
+            const validPassword = validatePassword();
+            authError.classList.add("hidden");
+
+            if (!validUsername || !validPassword) {
+                return;
+            }
+
+            setSubmitting(true);
+
+            fetch("/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                credentials: "same-origin",
+                body: JSON.stringify({
+                    username: usernameInput.value.trim(),
+                    password: passwordInput.value
+                })
+            })
+                .then(async (response) => {
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(data.message || "Unable to login right now. Please try again.");
+                    }
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                    localStorage.setItem("token", data.token);
+                    window.location.assign("/");
+                })
+                .catch((error) => {
+                    showAuthError(error.message);
+                    setSubmitting(false);
+                });
+        });
+    })();
+</script>
+{% endblock %}

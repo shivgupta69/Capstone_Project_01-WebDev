@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% from "macros/button.html" import button %}
+{% from "macros/card.html" import card, empty_state %}
+
+{% block title %}Schedule - AI Study Planner{% endblock %}
+
+{% block body %}
+<div class="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <div>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Today's Schedule</h1>
+        <p class="mt-1 text-sm text-slate-500">Your planned study sessions laid out in a clean timeline.</p>
+        <p class="mt-2 text-xs font-medium uppercase tracking-[0.15em] text-slate-400">All times in IST ({{ timezone_label }})</p>
+    </div>
+    {{ button(
+        label="Back to Dashboard",
+        href="/",
+        variant="ghost",
+        size="sm",
+        icon='<span class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 transition-transform group-hover:-translate-x-1 group-hover:bg-slate-200"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg></span>',
+        class="group px-0 py-0 text-sm font-medium"
+    ) }}
+</div>
+
+{% if schedule %}
+<div class="relative">
+    <div class="absolute bottom-4 left-5 top-4 hidden w-0.5 bg-gradient-to-b from-indigo-300 via-indigo-200 to-transparent sm:block"></div>
+
+    <div class="space-y-4">
+        {% for item in schedule %}
+        <div class="group relative animate-slide-up">
+            <div class="absolute left-5 top-1/2 hidden h-3 w-3 -translate-y-1/2 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 ring-4 ring-white sm:block"></div>
+
+            {% call card(padding="sm", class="p-5") %}
+                <div class="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center">
+                    <div class="flex flex-shrink-0 flex-col items-center gap-2 sm:w-48 sm:flex-row">
+                        <div class="hidden h-3 w-3 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 sm:block"></div>
+
+                        <div class="flex items-center gap-3 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-3">
+                            <div class="text-center">
+                                <p class="text-base font-bold leading-none text-slate-900">{{ item.start_time.strftime("%I:%M %p") }}</p>
+                                <p class="mt-1 text-xs text-slate-400">start</p>
+                            </div>
+                            <span class="text-slate-300">→</span>
+                            <div class="text-center">
+                                <p class="text-base font-bold leading-none text-slate-900">{{ item.end_time.strftime("%I:%M %p") }}</p>
+                                <p class="mt-1 text-xs text-slate-400">end</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                        <h4 class="break-words text-base font-bold text-slate-900 transition-colors group-hover:text-indigo-600" title="{{ item.task }}">
+                            {{ item.task }}
+                        </h4>
+                        {% if item.category %}
+                        <div class="mt-2 flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-xs font-semibold text-slate-600">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78-.872 1.78-1.78V5.25A2.25 2.25 0 0012.75 3h-4.318z"/>
+                                </svg>
+                                {{ item.category }}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex items-center justify-end">
+                        <div class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 px-4 py-2.5">
+                            <svg class="h-5 w-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-sm font-bold text-indigo-700">
+                                {{ item.duration_hours|round(2) }}h
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            {% endcall %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% call card(variant="gradient", hover=false, class="mt-6 border-indigo-100 bg-gradient-to-r from-indigo-50/80 via-white/80 to-purple-50/80") %}
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-4">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-md">
+                <svg class="h-6 w-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-bold text-slate-900">Schedule Summary</p>
+                <p class="text-xs text-slate-500">{{ schedule|length }} session{% if schedule|length != 1 %}s{% endif %} planned today</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <p class="text-xs font-medium uppercase tracking-[0.15em] text-slate-500">Total Study Time</p>
+            <p class="mt-1 text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                {% set total = namespace(value=0) %}
+                {% for item in schedule %}
+                    {% set total.value = total.value + item.duration_hours %}
+                {% endfor %}
+                {{ total.value }}h
+            </p>
+        </div>
+    </div>
+{% endcall %}
+{% else %}
+{{ empty_state(
+    icon='<svg class="h-10 w-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8.25 3v2.25M15.75 3v2.25M3.75 8.25h16.5M4.5 5.25h15A1.5 1.5 0 0121 6.75v12A1.5 1.5 0 0119.5 20.25h-15A1.5 1.5 0 013 18.75v-12A1.5 1.5 0 014.5 5.25z"/></svg>',
+    title="No schedule yet",
+    description="Add some tasks from the dashboard to generate your personalized study schedule!",
+    action_label="Add Your First Task",
+    action_href="/",
+    class="rounded-[2.5rem] p-12 shadow-glass-lg"
+) }}
+{% endif %}
+{% endblock %}

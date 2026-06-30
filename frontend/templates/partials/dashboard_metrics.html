@@ -1,0 +1,81 @@
+{% set metrics = namespace(total=tasks|length, done=0, progress=0, in_progress=0, todo=0, upcoming=0) %}
+{% for task in tasks %}
+    {% set task_status = task[6] if task|length > 6 and task[6] else 'todo' %}
+    {% if task_status == 'done' %}
+        {% set metrics.done = metrics.done + 1 %}
+    {% elif task_status == 'in-progress' %}
+        {% set metrics.in_progress = metrics.in_progress + 1 %}
+    {% else %}
+        {% set metrics.todo = metrics.todo + 1 %}
+    {% endif %}
+    {% if task|length > 5 and task[5] %}
+        {% set metrics.upcoming = metrics.upcoming + 1 %}
+    {% endif %}
+{% endfor %}
+{% if metrics.total > 0 %}
+    {% set metrics.progress = (metrics.done * 100 // metrics.total) %}
+{% endif %}
+
+<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div class="group glass-card rounded-3xl border border-white/60 bg-white/80 p-5 shadow-glass backdrop-blur-xl transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1">
+        <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-slate-400 to-slate-600 text-white shadow-md">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5.25h10.5M9 12h10.5M9 18.75h10.5M4.5 5.25h.008v.008H4.5V5.25zm0 6.75h.008v.008H4.5V12zm0 6.75h.008v.008H4.5v-.008z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Tasks</p>
+                <p class="text-2xl font-bold text-slate-900">{{ metrics.total }}</p>
+            </div>
+        </div>
+        <p class="mt-3 text-xs text-slate-500">Across all categories</p>
+    </div>
+    <div class="group glass-card rounded-3xl border border-emerald-200/60 bg-gradient-to-br from-emerald-50/80 to-white/80 p-5 shadow-glass backdrop-blur-xl transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1">
+        <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-md">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">Completed</p>
+                <p class="text-2xl font-bold text-emerald-700">{{ metrics.done }}</p>
+            </div>
+        </div>
+        <div class="mt-3">
+            <div class="h-2 overflow-hidden rounded-full bg-emerald-100">
+                <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500" style="width: {{ metrics.progress }}%;"></div>
+            </div>
+            <p class="mt-2 text-xs text-emerald-600">{{ metrics.progress }}% completion rate</p>
+        </div>
+    </div>
+    <div class="group glass-card rounded-3xl border border-amber-200/60 bg-gradient-to-br from-amber-50/80 to-white/80 p-5 shadow-glass backdrop-blur-xl transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1">
+        <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-md">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-amber-700">In Progress</p>
+                <p class="text-2xl font-bold text-amber-700">{{ metrics.in_progress }}</p>
+            </div>
+        </div>
+        <p class="mt-3 text-xs text-amber-600">Active focus items</p>
+    </div>
+    <div class="group glass-card rounded-3xl border border-indigo-200/60 bg-gradient-to-br from-indigo-50/80 to-white/80 p-5 shadow-glass backdrop-blur-xl transition-all duration-300 hover:shadow-glass-lg hover:-translate-y-1">
+        <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 text-white shadow-md">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8.25 3v2.25M15.75 3v2.25M3.75 8.25h16.5M4.5 5.25h15A1.5 1.5 0 0121 6.75v12A1.5 1.5 0 0119.5 20.25h-15A1.5 1.5 0 013 18.75v-12A1.5 1.5 0 014.5 5.25z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700">This Week</p>
+                <p class="text-sm font-bold text-indigo-700">{{ weekly_analytics.completed_tasks if weekly_analytics else 0 }}/{{ weekly_analytics.due_tasks if weekly_analytics else 0 }} done</p>
+            </div>
+        </div>
+        <p class="mt-3 text-xs text-indigo-600">{{ weekly_analytics.planned_hours if weekly_analytics else 0 }}h planned</p>
+    </div>
+</div>

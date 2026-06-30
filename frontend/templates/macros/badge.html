@@ -1,0 +1,74 @@
+{#
+    Reusable Badge Component
+    =========================
+
+    Variants: default, success, warning, danger, info, primary
+    Sizes: sm, md, lg
+
+    Usage:
+    {% from "macros/badge.html" import badge %}
+    {{ badge(label="New", variant="success") }}
+#}
+
+{% macro badge(label, variant="default", size="md", icon=null, class="") %}
+{% set base_classes = "inline-flex items-center gap-1.5 font-medium rounded-full" %}
+
+{# Variant styles #}
+{% if variant == "success" %}
+    {% set variant_classes = "border-emerald-200 bg-emerald-50 text-emerald-700" %}
+{% elif variant == "warning" %}
+    {% set variant_classes = "border-amber-200 bg-amber-50 text-amber-700" %}
+{% elif variant == "danger" %}
+    {% set variant_classes = "border-red-200 bg-red-50 text-red-700" %}
+{% elif variant == "info" %}
+    {% set variant_classes = "border-sky-200 bg-sky-50 text-sky-700" %}
+{% elif variant == "primary" %}
+    {% set variant_classes = "border-indigo-200 bg-indigo-50 text-indigo-700" %}
+{% elif variant == "purple" %}
+    {% set variant_classes = "border-purple-200 bg-purple-50 text-purple-700" %}
+{% else %}
+    {% set variant_classes = "border-slate-200 bg-slate-50 text-slate-600" %}
+{% endif %}
+
+{# Size styles #}
+{% if size == "sm" %}
+    {% set size_classes = "px-2 py-0.5 text-xs" %}
+{% elif size == "lg" %}
+    {% set size_classes = "px-4 py-1.5 text-sm" %}
+{% else %}
+    {% set size_classes = "px-2.5 py-1 text-xs" %}
+{% endif %}
+
+<span class="{{ base_classes }} {{ variant_classes }} {{ size_classes }} {{ class }}">
+    {% if icon %}
+        <span>{{ icon | safe }}</span>
+    {% endif %}
+    {{ label }}
+</span>
+{% endmacro %}
+
+
+{# Status Badge - For task status #}
+{% macro status_badge(status) %}
+{% if status == "done" or status == "completed" %}
+    {{ badge(label="Done", variant="success", icon="✓") }}
+{% elif status == "in-progress" or status == "in_progress" %}
+    {{ badge(label="In Progress", variant="warning", icon="⟳") }}
+{% elif status == "pending" %}
+    {{ badge(label="Pending", variant="info") }}
+{% else %}
+    {{ badge(label="To Do", variant="default") }}
+{% endif %}
+{% endmacro %}
+
+
+{# Priority Badge #}
+{% macro priority_badge(priority) %}
+{% if priority == "high" or priority >= 4 %}
+    {{ badge(label="High", variant="danger", icon="🔴") }}
+{% elif priority == "medium" or priority >= 2 %}
+    {{ badge(label="Medium", variant="warning", icon="🟡") }}
+{% else %}
+    {{ badge(label="Low", variant="success", icon="🟢") }}
+{% endif %}
+{% endmacro %}

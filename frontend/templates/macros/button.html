@@ -1,0 +1,86 @@
+{% macro button(label=null, variant="primary", size="md", type="button", icon=null, loading=false, loading_text="Loading...", disabled=false, onclick=null, href=null, id=null, name=null, value=null, class="", attrs="") %}
+{% set base_classes = "inline-flex items-center justify-center gap-2 rounded-2xl font-semibold transition-all duration-300 focus:outline-none focus:ring-4 active:scale-[0.98]" %}
+
+{% if variant == "primary" %}
+    {% set variant_classes = "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-200 hover:-translate-y-0.5 hover:from-indigo-600 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-300 focus:ring-indigo-200" %}
+{% elif variant == "secondary" %}
+    {% set variant_classes = "border border-slate-200 bg-white/80 text-slate-700 shadow-sm backdrop-blur-sm hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 hover:shadow-md focus:ring-slate-200" %}
+{% elif variant == "danger" %}
+    {% set variant_classes = "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:-translate-y-0.5 hover:from-red-600 hover:to-red-700 hover:shadow-lg focus:ring-red-200" %}
+{% elif variant == "success" %}
+    {% set variant_classes = "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md hover:-translate-y-0.5 hover:from-emerald-600 hover:to-emerald-700 hover:shadow-lg focus:ring-emerald-200" %}
+{% elif variant == "dark" %}
+    {% set variant_classes = "bg-gradient-to-r from-slate-700 to-slate-800 text-white shadow-md hover:-translate-y-0.5 hover:from-slate-800 hover:to-slate-900 hover:shadow-lg focus:ring-slate-300" %}
+{% else %}
+    {% set variant_classes = "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 focus:ring-slate-200" %}
+{% endif %}
+
+{% if size == "sm" %}
+    {% set size_classes = "px-3 py-2 text-xs" %}
+{% elif size == "lg" %}
+    {% set size_classes = "px-6 py-4 text-base" %}
+{% else %}
+    {% set size_classes = "px-4 py-3.5 text-sm" %}
+{% endif %}
+
+{% set state_classes = "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0" %}
+{% set content = caller() if caller is defined else label %}
+{% set element_classes = base_classes + " " + variant_classes + " " + size_classes + " " + state_classes + " " + class %}
+
+{% if href %}
+<a
+    href="{{ href }}"
+    {% if id %}id="{{ id }}"{% endif %}
+    class="{{ element_classes }}"
+    {{ attrs | safe }}
+>
+    {% if icon %}{{ icon | safe }}{% endif %}
+    {{ content }}
+</a>
+{% else %}
+<button
+    type="{{ type }}"
+    {% if id %}id="{{ id }}"{% endif %}
+    {% if name %}name="{{ name }}"{% endif %}
+    {% if value is not none %}value="{{ value }}"{% endif %}
+    {% if onclick %}onclick="{{ onclick }}"{% endif %}
+    {% if disabled or loading %}disabled{% endif %}
+    {% if loading %}data-loading="true"{% endif %}
+    class="{{ element_classes }}"
+    {{ attrs | safe }}
+>
+    {% if loading %}
+        <svg class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        {{ loading_text }}
+    {% else %}
+        {% if icon %}{{ icon | safe }}{% endif %}
+        {{ content }}
+    {% endif %}
+</button>
+{% endif %}
+{% endmacro %}
+
+{% macro icon_button(icon, label, variant="ghost", size="md", type="button", disabled=false, onclick=null, href=null, class="", attrs="") %}
+{% set size_classes = "p-2" if size == "sm" else "p-4" if size == "lg" else "p-2.5" %}
+{% if variant == "primary" %}
+    {% set variant_classes = "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md hover:-translate-y-0.5 hover:shadow-lg focus:ring-indigo-200" %}
+{% elif variant == "danger" %}
+    {% set variant_classes = "text-red-600 hover:bg-red-50 focus:ring-red-200" %}
+{% else %}
+    {% set variant_classes = "text-slate-500 hover:bg-slate-100/80 hover:text-slate-700 focus:ring-slate-200" %}
+{% endif %}
+{% set classes = "inline-flex items-center justify-center rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 active:scale-[0.95] " + size_classes + " " + variant_classes + " " + class %}
+
+{% if href %}
+<a href="{{ href }}" class="{{ classes }}" aria-label="{{ label }}" title="{{ label }}" {{ attrs | safe }}>
+    {{ icon | safe }}
+</a>
+{% else %}
+<button type="{{ type }}" {% if onclick %}onclick="{{ onclick }}"{% endif %} {% if disabled %}disabled{% endif %} class="{{ classes }}" aria-label="{{ label }}" title="{{ label }}" {{ attrs | safe }}>
+    {{ icon | safe }}
+</button>
+{% endif %}
+{% endmacro %}

@@ -1,0 +1,142 @@
+{#
+    Modal Component
+    ================
+
+    Features: header, body, footer, sizes, dismissible
+    Variants: default, danger, success
+
+    Usage:
+    {% from "macros/modal.html" import modal %}
+    {% call modal(id="confirmModal", title="Confirm Action") %}
+        Content here
+    {% endcall %}
+#}
+
+{% macro modal(id, title=null, size="md", variant="default", show=false) %}
+{% set modal_id = id %}
+
+{# Size styles #}
+{% if size == "sm" %}
+    {% set size_classes = "max-w-sm" %}
+{% elif size == "lg" %}
+    {% set size_classes = "max-w-2xl" %}
+{% elif size == "xl" %}
+    {% set size_classes = "max-w-4xl" %}
+{% else %}
+    {% set size_classes = "max-w-lg" %}
+{% endif %}
+
+{# Variant styles #}
+{% if variant == "danger" %}
+    {% set accent_class = "border-t-red-100" %}
+{% elif variant == "success" %}
+    {% set accent_class = "border-t-emerald-100" %}
+{% else %}
+    {% set accent_class = "border-t-slate-100" %}
+{% endif %}
+
+<!-- Modal Backdrop -->
+<div
+    id="{{ modal_id }}-backdrop"
+    class="fixed inset-0 z-40 hidden bg-slate-900/40 backdrop-blur-sm transition-opacity"
+    onclick="hideModal('{{ modal_id }}')"
+></div>
+
+<!-- Modal -->
+<div
+    id="{{ modal_id }}"
+    class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true"
+>
+    <div class="w-full {{ size_classes }}">
+        <div class="glass-card animate-slide-up rounded-[2rem] border border-white/60 bg-white/90 shadow-glass-lg backdrop-blur-xl {{ accent_class }}">
+            {% if title %}
+            <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+                <h3 class="text-lg font-bold text-slate-900">{{ title }}</h3>
+                <button onclick="hideModal('{{ modal_id }}')" class="rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600" aria-label="Close modal">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            {% endif %}
+
+            <div class="px-6 py-4">
+                {{ caller() if caller else "" }}
+            </div>
+
+            {% if caller and caller.kwargs %}
+            <div class="flex items-center justify-end gap-2 border-t border-slate-100 px-6 py-4">
+                {{ caller.kwargs.get('footer', '') | safe }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        const backdrop = document.getElementById(modalId + '-backdrop');
+        modal?.classList.remove('hidden');
+        modal?.classList.add('flex');
+        backdrop?.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideModal(modalId) {
+        const modal = document.getElementById(modalId);
+        const backdrop = document.getElementById(modalId + '-backdrop');
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
+        backdrop?.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+</script>
+
+{% if show %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        showModal('{{ modal_id }}');
+    });
+</script>
+{% endif %}
+{% endmacro %}
+
+
+{# Confirmation Modal #}
+{% macro confirm_modal(id, title, message, confirm_label="Confirm", cancel_label="Cancel", variant="default", form_id=null) %}
+{% call modal(id=id, title=title, size="sm", variant=variant) %}
+    <div class="flex flex-col items-center text-center">
+        {% if variant == "danger" %}
+            <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                <svg class="h-7 w-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+        {% else %}
+            <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100">
+                <svg class="h-7 w-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        {% endif %}
+        <p class="text-sm text-slate-600">{{ message }}</p>
+    </div>
+    <div class="mt-6 flex gap-2">
+        <button onclick="hideModal('{{ id }}')" class="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50">
+            {{ cancel_label }}
+        </button>
+        {% if form_id %}
+            <button onclick="document.getElementById('{{ form_id }}').submit()" class="flex-1 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-indigo-600 hover:to-purple-700 hover:shadow-lg">
+                {{ confirm_label }}
+            </button>
+        {% else %}
+            <button onclick="handleConfirm('{{ id }}')" class="flex-1 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-indigo-600 hover:to-purple-700 hover:shadow-lg">
+                {{ confirm_label }}
+            </button>
+        {% endif %}
+    </div>
+{% endcall %}
+{% endmacro %}

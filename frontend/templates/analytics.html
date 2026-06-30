@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% from "macros/card.html" import card %}
+{% from "macros/input.html" import select %}
+
+{% block title %}Analytics - AI Study Planner{% endblock %}
+
+{% block body %}
+{% set total_hours = analytics_data.hours | sum %}
+{% set total_completed = analytics_data.completed | sum %}
+{% set hours_progress = (total_hours if total_hours < 100 else 100) %}
+{% set completed_progress = ((total_completed * 100 / 50) if total_completed < 50 else 100) %}
+
+<div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-900">Analytics</h2>
+        <p class="mt-1 text-sm text-slate-500">Track your daily study consistency and completed tasks.</p>
+    </div>
+    <form method="get" action="/analytics" class="flex items-center gap-3">
+        <label for="days" class="text-sm font-semibold text-slate-600">Range</label>
+        {{ select(
+            name="days",
+            id="days",
+            value=selected_days|string,
+            options=[
+                {"value": "7", "label": "Last 7 days"},
+                {"value": "14", "label": "Last 14 days"},
+                {"value": "30", "label": "Last 30 days"}
+            ],
+            class="rounded-xl px-3 py-2.5 font-medium",
+            attrs='onchange="this.form.submit()"'
+        ) }}
+    </form>
+</div>
+
+<div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+    {% call card(class="border-indigo-200/60 bg-gradient-to-br from-indigo-50/80 to-white/80", hover=true) %}
+        <div class="flex items-center gap-4">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-indigo-600 text-white shadow-lg shadow-indigo-200">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700">Total Study Hours</p>
+                <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{{ '%.1f'|format(total_hours) }}</p>
+            </div>
+        </div>
+        <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-indigo-100">
+            <div class="h-full rounded-full bg-gradient-to-r from-indigo-400 to-purple-500" style="width: {{ hours_progress }}%"></div>
+        </div>
+    {% endcall %}
+    {% call card(class="border-emerald-200/60 bg-gradient-to-br from-emerald-50/80 to-white/80", hover=true) %}
+        <div class="flex items-center gap-4">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-200">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">Tasks Completed</p>
+                <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">{{ total_completed }}</p>
+            </div>
+        </div>
+        <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-emerald-100">
+            <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500" style="width: {{ completed_progress }}%"></div>
+        </div>
+    {% endcall %}
+</div>
+
+<div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+    {% call card(class="shadow-glass-lg", hover=false) %}
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-semibold text-slate-900">Daily Study Hours</h3>
+                <p class="text-xs text-slate-500">Hours studied per day</p>
+            </div>
+            <div class="flex items-center gap-2 rounded-xl bg-indigo-50 px-3 py-2">
+                <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605"/>
+                </svg>
+                <span class="text-xs font-semibold text-indigo-600">Trend</span>
+            </div>
+        </div>
+        <div class="h-72"><canvas id="hoursChart"></canvas></div>
+    {% endcall %}
+
+    {% call card(class="shadow-glass-lg", hover=false) %}
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-semibold text-slate-900">Tasks Completed</h3>
+                <p class="text-xs text-slate-500">Tasks finished per day</p>
+            </div>
+            <div class="flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2">
+                <svg class="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-xs font-semibold text-emerald-600">Progress</span>
+            </div>
+        </div>
+        <div class="h-72"><canvas id="tasksChart"></canvas></div>
+    {% endcall %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (function () {
+        const labels = {{ analytics_data.labels | tojson }};
+        const hoursData = {{ analytics_data.hours | tojson }};
+        const completedData = {{ analytics_data.completed | tojson }};
+
+        const textColor = "#64748b";
+        const gridColor = "#e2e8f0";
+
+        const baseOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: textColor } }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColor },
+                    grid: { color: gridColor }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: textColor },
+                    grid: { color: gridColor }
+                }
+            }
+        };
+
+        const hoursCtx = document.getElementById("hoursChart");
+        if (hoursCtx) {
+            new Chart(hoursCtx, {
+                type: "line",
+                data: {
+                    labels,
+                    datasets: [{
+                        label: "Hours Studied",
+                        data: hoursData,
+                        borderColor: "rgba(99, 102, 241, 1)",
+                        backgroundColor: "rgba(99, 102, 241, 0.1)",
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: "rgba(99, 102, 241, 1)",
+                        pointBorderColor: "#fff",
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    }],
+                },
+                options: baseOptions,
+            });
+        }
+
+        const tasksCtx = document.getElementById("tasksChart");
+        if (tasksCtx) {
+            new Chart(tasksCtx, {
+                type: "bar",
+                data: {
+                    labels,
+                    datasets: [{
+                        label: "Tasks Completed",
+                        data: completedData,
+                        backgroundColor: "rgba(16, 185, 129, 0.85)",
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }],
+                },
+                options: {
+                    ...baseOptions,
+                    plugins: {
+                        ...baseOptions.plugins,
+                        legend: { display: false }
+                    }
+                },
+            });
+        }
+    })();
+</script>
+{% endblock %}

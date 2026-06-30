@@ -1,0 +1,99 @@
+{% from "macros/button.html" import button %}
+{% from "macros/card.html" import card %}
+{% from "macros/input.html" import select %}
+
+{% set task_status = task[6] if task|length > 6 and task[6] else 'todo' %}
+{% set priority = 'Low' %}
+{% set priority_classes = 'border-emerald-200 bg-emerald-50 text-emerald-700' %}
+{% set priority_icon = '🟢' %}
+{% if task[4] >= 4 %}
+    {% set priority = 'High' %}
+    {% set priority_classes = 'border-red-200 bg-red-50 text-red-700' %}
+    {% set priority_icon = '🔴' %}
+{% elif task[4] >= 2 %}
+    {% set priority = 'Medium' %}
+    {% set priority_classes = 'border-amber-200 bg-amber-50 text-amber-700' %}
+    {% set priority_icon = '🟡' %}
+{% endif %}
+
+{% call card(class="group relative overflow-hidden p-5", attrs='data-task-id="' ~ task[0] ~ '" data-task-status="' ~ task_status ~ '"') %}
+    <div class="task-status-accent absolute left-0 top-0 h-full w-1 {% if task_status == 'done' %}bg-gradient-to-b from-emerald-400 to-emerald-600{% elif task_status == 'in-progress' %}bg-gradient-to-b from-amber-400 to-amber-600{% else %}bg-gradient-to-b from-slate-300 to-slate-400{% endif %}"></div>
+
+    <div class="flex items-start justify-between gap-3 pl-2">
+        <div class="min-w-0">
+            <div class="flex items-center gap-2">
+                <h4 class="break-words text-base font-bold text-slate-900 transition-colors group-hover:text-indigo-700">{{ task[2] }}</h4>
+            </div>
+            <p class="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78-.872 1.78-1.78V5.25A2.25 2.25 0 0012.75 3h-4.318z"/>
+                </svg>
+                {{ task[3] }}
+            </p>
+        </div>
+        <span class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold {{ priority_classes }}">
+            <span>{{ priority_icon }}</span>
+            {{ priority }}
+        </span>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
+        <div class="rounded-2xl bg-slate-50/80 px-3 py-3">
+            <p class="flex items-center gap-1.5 text-slate-500">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+                </svg>
+                Deadline
+            </p>
+            <p class="mt-1.5 font-semibold text-slate-800">{{ task[5] if task|length > 5 and task[5] else 'Not set' }}</p>
+        </div>
+        <div class="rounded-2xl bg-slate-50/80 px-3 py-3">
+            <p class="flex items-center gap-1.5 text-slate-500">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
+                </svg>
+                Status
+            </p>
+            <p class="task-status-label mt-1.5 font-semibold text-slate-800">{{ task_status|replace('-', ' ')|title }}</p>
+        </div>
+    </div>
+
+    <div class="mt-4 h-2.5 rounded-full bg-slate-100">
+        <div class="task-status-progress h-full rounded-full {% if task_status == 'done' %}bg-gradient-to-r from-emerald-400 to-emerald-600{% elif task_status == 'in-progress' %}bg-gradient-to-r from-amber-400 to-amber-600{% else %}bg-gradient-to-r from-slate-400 to-slate-600{% endif %}" style="width: {% if task_status == 'done' %}100{% elif task_status == 'in-progress' %}60{% else %}20{% endif %}%"></div>
+    </div>
+
+    <div class="mt-5 flex items-center gap-2">
+        <form action="/task/{{ task[0] }}/status" method="post" class="flex-1">
+            {{ select(
+                name="status",
+                value=task_status,
+                options=[
+                    {"value": "todo", "label": "To Do"},
+                    {"value": "in-progress", "label": "In Progress"},
+                    {"value": "done", "label": "Done"}
+                ],
+                class="task-status-select rounded-xl px-3 py-2.5 text-xs font-medium",
+                attrs='data-task-id="' ~ task[0] ~ '" data-initial-value="' ~ task_status ~ '"'
+            ) }}
+        </form>
+        {{ button(
+            label="Schedule",
+            href="/schedule",
+            variant="secondary",
+            size="sm",
+            icon='<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 3v2.25M15.75 3v2.25M3.75 8.25h16.5M4.5 5.25h15A1.5 1.5 0 0121 6.75v12A1.5 1.5 0 0119.5 20.25h-15A1.5 1.5 0 013 18.75v-12A1.5 1.5 0 014.5 5.25z"/></svg>',
+            class="rounded-xl px-3 py-2.5 text-xs"
+        ) }}
+        <form action="/delete/{{ task[0] }}" method="post" class="inline task-delete-form" data-task-id="{{ task[0] }}">
+            {{ button(
+                label="Delete",
+                type="submit",
+                variant="danger",
+                size="sm",
+                icon='<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 12m-4.788 0L9.254 9m0 0a3.001 3.001 0 00-3.56 0 1.89 1.89 0 00-.496 1.25m0 0c0 .5.18.94.496 1.25a3.001 3.001 0 003.56 0m8.668-3.75a.75.75 0 00-1.5 0v.75h-.75a.75.75 0 000 1.5h.75v.75a.75.75 0 001.5 0v-.75h.75a.75.75 0 000-1.5h-.75v-.75z"/></svg>',
+                class="delete-task-btn rounded-xl px-3 py-2.5 text-xs",
+                attrs='data-task-id="' ~ task[0] ~ '" data-task-name="' ~ task[2] ~ '"'
+            ) }}
+        </form>
+    </div>
+{% endcall %}

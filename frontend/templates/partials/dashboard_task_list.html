@@ -1,0 +1,32 @@
+<section>
+    <div class="mb-4 flex items-center justify-between">
+        <div>
+            <h3 class="text-lg font-semibold text-slate-900">Today's Tasks</h3>
+            <p class="text-xs text-slate-500">Manage your daily study items</p>
+        </div>
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+            </svg>
+            Card view
+        </span>
+    </div>
+
+    {% if tasks %}
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {% for task in tasks %}
+        {% include "components/task_card.html" %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card flex flex-col items-center justify-center rounded-[2rem] border border-dashed border-slate-300 bg-white/80 p-10 text-center shadow-glass backdrop-blur-xl">
+        <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200">
+            <svg class="h-8 w-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5.25h10.5M9 12h10.5M9 18.75h10.5M4.5 5.25h.008v.008H4.5V5.25zm0 6.75h.008v.008H4.5V12zm0 6.75h.008v.008H4.5v-.008z"/>
+            </svg>
+        </div>
+        <p class="text-base font-semibold text-slate-900">No tasks yet</p>
+        <p class="mt-1 text-sm text-slate-500">Create your first task to populate the dashboard.</p>
+    </div>
+    {% endif %}
+</section>

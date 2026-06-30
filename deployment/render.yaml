@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ai-study-planner
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: bash deployment/scripts/start_backend.sh
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SESSION_COOKIE_SECURE
+        value: "1"

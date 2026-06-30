@@ -1,0 +1,55 @@
+<div class="glass-card rounded-3xl border border-white/60 bg-white/80 p-6 shadow-glass backdrop-blur-xl">
+    <form id="filterForm" action="/" method="get" class="grid grid-cols-1 gap-4 md:grid-cols-5">
+        <div class="md:col-span-2">
+            <label for="searchInput" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Search</label>
+            <input type="text" name="search" id="searchInput" value="{{ filters.search if filters else '' }}" placeholder="Search tasks..." class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 outline-none transition-all duration-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 hover:border-slate-300">
+        </div>
+        <div>
+            <label for="categorySelect" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Category</label>
+            <select name="category" id="categorySelect" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-800 outline-none transition-all duration-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 hover:border-slate-300">
+                <option value="">All Categories</option>
+                {% if category_counts %}
+                    {% for category_item in category_counts %}
+                    <option value="{{ category_item.name }}" {% if filters and filters.category == category_item.name %}selected{% endif %}>{{ category_item.name }} ({{ category_item.count }})</option>
+                    {% endfor %}
+                {% else %}
+                    <option value="" disabled>No categories yet</option>
+                {% endif %}
+            </select>
+        </div>
+        <div>
+            <label for="statusSelect" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Status</label>
+            <select name="status" id="statusSelect" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-800 outline-none transition-all duration-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 hover:border-slate-300">
+                <option value="">All Statuses</option>
+                <option value="todo" {% if filters and filters.status == 'todo' %}selected{% endif %}>To Do</option>
+                <option value="in-progress" {% if filters and filters.status == 'in-progress' %}selected{% endif %}>In Progress</option>
+                <option value="done" {% if filters and filters.status == 'done' %}selected{% endif %}>Done</option>
+            </select>
+        </div>
+        <div>
+            <label for="dueFilterSelect" class="mb-1.5 block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Due Date</label>
+            <select name="due_filter" id="dueFilterSelect" class="w-full rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm text-slate-800 outline-none transition-all duration-200 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 hover:border-slate-300">
+                <option value="">Any Due Date</option>
+                <option value="today" {% if filters and filters.due_filter == 'today' %}selected{% endif %}>Due Today</option>
+                <option value="this-week" {% if filters and filters.due_filter == 'this-week' %}selected{% endif %}>Due This Week</option>
+                <option value="overdue" {% if filters and filters.due_filter == 'overdue' %}selected{% endif %}>Overdue</option>
+            </select>
+        </div>
+        <div class="md:col-span-5">
+            <div class="flex flex-wrap gap-2">
+                <button type="submit" class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-indigo-600 hover:to-purple-700 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98]">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                    </svg>
+                    Apply Filters
+                </button>
+                <a href="/" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-slate-50 hover:shadow-md">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                    </svg>
+                    Reset
+                </a>
+            </div>
+        </div>
+    </form>
+</div>

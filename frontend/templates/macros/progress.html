@@ -1,0 +1,118 @@
+{#
+    Progress Bar Component
+    =======================
+
+    Variants: default, success, warning, danger, gradient
+    Sizes: sm, md, lg
+    Features: label, animated, striped
+
+    Usage:
+    {% from "macros/progress.html" import progress_bar %}
+    {{ progress_bar(value=75, label="Progress", variant="gradient") }}
+#}
+
+{% macro progress_bar(value, label=null, variant="default", size="md", show_label=true, animated=false, class="") %}
+{% set base_classes = "overflow-hidden rounded-full bg-slate-100" %}
+
+{# Size styles #}
+{% if size == "sm" %}
+    {% set size_classes = "h-1.5" %}
+{% elif size == "lg" %}
+    {% set size_classes = "h-4" %}
+{% else %}
+    {% set size_classes = "h-2.5" %}
+{% endif %}
+
+{# Variant styles #}
+{% if variant == "success" %}
+    {% set bar_classes = "bg-gradient-to-r from-emerald-400 to-emerald-600" %}
+{% elif variant == "warning" %}
+    {% set bar_classes = "bg-gradient-to-r from-amber-400 to-amber-600" %}
+{% elif variant == "danger" %}
+    {% set bar_classes = "bg-gradient-to-r from-red-400 to-red-600" %}
+{% elif variant == "gradient" %}
+    {% set bar_classes = "bg-gradient-to-r from-indigo-400 to-purple-600" %}
+{% elif variant == "sky" %}
+    {% set bar_classes = "bg-gradient-to-r from-sky-400 to-blue-600" %}
+{% else %}
+    {% set bar_classes = "bg-gradient-to-r from-slate-400 to-slate-600" %}
+{% endif %}
+
+{% set animated_class = "" %}
+{% if animated %}
+    {% set animated_class = "animate-pulse" %}
+{% endif %}
+
+<div class="{{ class }}">
+    {% if label and show_label %}
+        <div class="mb-2 flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-600">{{ label }}</span>
+            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">{{ value }}%</span>
+        </div>
+    {% endif %}
+    <div class="{{ base_classes }} {{ size_classes }}">
+        <div
+            class="h-full rounded-full {{ bar_classes }} {{ animated_class }} transition-all duration-700 ease-out"
+            style="width: {{ value }}%"
+            role="progressbar"
+            aria-valuenow="{{ value }}"
+            aria-valuemin="0"
+            aria-valuemax="100"
+        ></div>
+    </div>
+</div>
+{% endmacro %}
+
+
+{# Progress Ring / Circular Progress #}
+{% macro progress_ring(value, size=80, stroke=8, color="indigo", label=null, show_value=true) %}
+{% set radius = (size - stroke) / 2 %}
+{% set circumference = radius * 2 * 3.14159 %}
+{% set offset = circumference - (value / 100) * circumference %}
+
+{% if color == "success" %}
+    {% set color_classes = "text-emerald-500" %}
+{% elif color == "warning" %}
+    {% set color_classes = "text-amber-500" %}
+{% elif color == "danger" %}
+    {% set color_classes = "text-red-500" %}
+{% elif color == "purple" %}
+    {% set color_classes = "text-purple-500" %}
+{% else %}
+    {% set color_classes = "text-indigo-500" %}
+{% endif %}
+
+<div class="inline-flex flex-col items-center">
+    <svg width="{{ size }}" height="{{ size }}" class="rotate-[-90deg]">
+        <!-- Background circle -->
+        <circle
+            cx="{{ size / 2 }}"
+            cy="{{ size / 2 }}"
+            r="{{ radius }}"
+            stroke="currentColor"
+            stroke-width="{{ stroke }}"
+            fill="transparent"
+            class="text-slate-100"
+        />
+        <!-- Progress circle -->
+        <circle
+            cx="{{ size / 2 }}"
+            cy="{{ size / 2 }}"
+            r="{{ radius }}"
+            stroke="currentColor"
+            stroke-width="{{ stroke }}"
+            fill="transparent"
+            stroke-dasharray="{{ circumference }}"
+            stroke-dashoffset="{{ offset }}"
+            stroke-linecap="round"
+            class="{{ color_classes }} transition-all duration-700 ease-out"
+        />
+    </svg>
+    {% if show_value %}
+        <span class="mt-[-24px] text-sm font-bold text-slate-900">{{ value }}%</span>
+    {% endif %}
+    {% if label %}
+        <span class="mt-1 text-xs text-slate-500">{{ label }}</span>
+    {% endif %}
+</div>
+{% endmacro %}

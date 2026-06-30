@@ -1,0 +1,46 @@
+{% from "macros/button.html" import button %}
+
+{% if session.user_id %}
+<header class="sticky top-0 z-20 border-b border-white/40 bg-white/70 backdrop-blur-xl glass">
+    <div class="flex h-16 items-center justify-between px-4 sm:px-6">
+        <div class="flex items-center gap-3">
+            <button id="openSidebar" class="rounded-xl p-2 text-slate-500 transition-all duration-200 hover:bg-slate-100/80 hover:text-slate-700 lg:hidden" aria-label="Open sidebar" type="button">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+            </button>
+            <div>
+                <p class="text-xs font-medium text-slate-500">Workspace</p>
+                <h1 class="text-sm font-bold text-slate-900">Study Command Center</h1>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <form action="/logout" method="post">
+                {{ button(
+                    label="Logout",
+                    type="submit",
+                    variant="dark",
+                    size="sm",
+                    icon='<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>',
+                    class="rounded-xl px-4 py-2"
+                ) }}
+            </form>
+        </div>
+    </div>
+</header>
+{% else %}
+<header class="sticky top-0 z-20 border-b border-white/40 bg-white/70 backdrop-blur-xl glass">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+        <a href="/" class="flex items-center gap-2">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v11.494m-5.747-8.62h11.494M4.5 19.5h15a1.5 1.5 0 001.5-1.5v-12A1.5 1.5 0 0019.5 4.5h-15A1.5 1.5 0 003 6v12a1.5 1.5 0 001.5 1.5z"/>
+                </svg>
+            </div>
+            <span class="text-sm font-bold text-slate-900">AI Study Planner</span>
+        </a>
+        <div class="flex items-center gap-2">
+            {{ button(label="Login", href="/login", variant="ghost", size="sm", class="rounded-xl px-4 py-2") }}
+            {{ button(label="Register", href="/register", variant="primary", size="sm", class="rounded-xl px-4 py-2") }}
+        </div>
+    </div>
+</header>
+{% endif %}
